@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="description" content="">
+<meta name="keywords" content="HTML,CSS,XML, JSON,JavaScript,PHP">
+<meta name="author" content="Johnny Ho">
+<link rel="stylesheet" type="text/css" href="css/bootstrap.css">
+<link href='https://fonts.googleapis.com/css?family=Permanent+Marker&effect=shadow-multiple' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=Roboto+Slab' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
+<link rel="stylesheet" type="text/css" href="css/style.css">
+<style type="text/css">
+
+</style>
+<script src="jquery-3.3.1.js"></script>
+<script src="js/sorttable.js"></script>
+<script type="text/JavaScript"></script>
+<script Language="JavaScript">
+function objectifyForm(formArray) {//serialize data function
+
+  var returnArray = {};
+  for (var i = 0; i < formArray.length; i++){
+    returnArray[formArray[i]['name']] = formArray[i]['value'];
+  }
+  return returnArray;
+}
+
+$(document).ready(function(){
+	var urlParams;
+	(window.onpopstate = function () {
+		var match,
+			pl     = /\+/g,  // Regex for replacing addition symbol with a space
+			search = /([^&=]+)=?([^&]*)/g,
+			decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
+			query  = window.location.search.substring(1);
+
+		urlParams = {};
+		while (match = search.exec(query))
+		   urlParams[decode(match[1])] = decode(match[2]);
+	})();
+	var table = urlParams["table"];
+	var row = JSON.parse(urlParams["row"]);
+	var head_html = "<tr>";
+	var row_html = "<tr>";
+	$.each(row, function(key,value){
+		head_html += "<th>" + key + "</th>";
+		row_html += "<td><input type='text' class='form-control' name='"+key+"' value='"+value+"'></td>";
+	});
+	head_html += "<th></th></tr>";
+	row_html += "<td><button type='submit' style='width:100%;' class='btn btn-success btn-sm'>Submit</button></td></tr>";
+	$('#table-col').append(head_html);
+	$('#table-row').append(row_html);
+	//console.log($.param(row));
+	
+	$('form').submit(function(event){
+		var old_data = row;
+		var new_data = objectifyForm($('form').serializeArray());
+		console.log(table);
+		console.log(old_data);
+		console.log(new_data);
+		$.ajax({
+			type: 'POST',
+			url: 'php/editRow.php',
+			data: {table:table, old_data:old_data, new_data:new_data},
+			success: function(data){
+						location.replace("CMS.html");
+					}
+		});
+		event.preventDefault();
+		location.replace("CMS.html");
+	});
+	
+});
+</script>
+</head>
+<body>
+<form>
+<table id="db-table" class="table table-hover">
+<thead id="table-col">
+</thead>
+<tbody id="table-row">
+</tbody>
+<tfoot id="table-foot">
+</tfoot>
+</table>
+</form>
+<script src="jquery-3.3.1.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+</body>
+</html>
